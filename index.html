@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng giá cày thuê | Bear Roblox</title>
+    <style>
+        :root {
+            --bg: #0b1020;
+            --card: #141a33;
+            --text: #ffffff;
+            --sub: #b5c0ff;
+            --accent: #ff6600; 
+            --accent-glow: rgba(255, 102, 0, 0.6);
+            /* Cubic-bezier mượt như iPhone */
+            --ios-curve: cubic-bezier(0.32, 0.72, 0, 1);
+        }
+
+        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; transition: 0.3s; }
+        body { margin: 0; background: var(--bg); color: var(--text); overflow-x: hidden; }
+
+        header {
+            padding: 15px; display: flex; justify-content: center; align-items: center;
+            background: linear-gradient(90deg, #000, #331a00, #000);
+            border-bottom: 2px solid var(--accent); box-shadow: 0 0 15px var(--accent-glow);
+            position: sticky; top: 0; z-index: 100;
+        }
+        header h1 { font-size: 18px; margin: 0; text-shadow: 0 0 10px var(--accent); color: #fff; }
+
+        .hero { text-align: center; padding: 30px 10px 10px; }
+        .hero .brand { color: var(--accent); font-size: 38px; font-weight: 900; text-shadow: 0 0 20px var(--accent-glow); text-transform: uppercase; }
+        .hero p { font-size: 12px; color: var(--accent); letter-spacing: 2px; font-weight: bold; margin-top: 5px; }
+
+        .banner-box { display: flex; justify-content: center; padding: 10px 20px 25px; }
+        .outer-spin {
+            position: relative; width: 100%; max-width: 380px; aspect-ratio: 16/10;
+            border-radius: 20px; overflow: hidden; display: flex; justify-content: center; align-items: center;
+            background: #000; box-shadow: 0 0 25px var(--accent-glow);
+        }
+        .outer-spin::before {
+            content: ''; position: absolute; width: 250%; height: 250%;
+            background: conic-gradient(transparent, var(--accent), #000, var(--accent), transparent 60%);
+            animation: rotate 3s linear infinite;
+        }
+        .outer-spin::after { content: ''; position: absolute; inset: 5px; background: var(--bg); border-radius: 15px; z-index: 1; }
+        .main-img { width: calc(100% - 10px); height: calc(100% - 10px); object-fit: cover; border-radius: 12px; position: relative; z-index: 2; }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        .container { padding: 0 16px 40px; }
+        .drop-box {
+            background: var(--card); border-radius: 15px; margin-bottom: 12px;
+            border: 1.5px solid rgba(255, 102, 0, 0.2); overflow: hidden;
+        }
+        .drop-head {
+            padding: 16px; display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; font-weight: 800; font-size: 14px; background: rgba(255, 102, 0, 0.05); color: var(--accent);
+        }
+        .drop-body { max-height: 0; overflow: hidden; background: rgba(0, 0, 0, 0.2); transition: 0.4s ease-in-out; }
+        .drop-box.active .drop-body { max-height: 2000px; padding: 8px 0; }
+
+        .item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 18px; border-bottom: 1px solid rgba(255,102,0,0.1); cursor: pointer;
+        }
+        .item:hover { background: rgba(255, 102, 0, 0.08); }
+        .item h4 { margin: 0; font-size: 14px; color: #fff; }
+        .item p { margin: 2px 0 0; font-size: 11px; color: var(--sub); }
+        .price { background: var(--accent); color: #fff; padding: 4px 10px; border-radius: 8px; font-weight: 800; font-size: 12px; }
+
+        /* --- BOTTOM SHEET DƯỚI ĐÁY --- */
+        .sheet-container {
+            position: fixed; inset: 0; z-index: 2000;
+            display: flex; flex-direction: column; justify-content: flex-end;
+            visibility: hidden; pointer-events: none;
+        }
+        .sheet-container.active { visibility: visible; pointer-events: auto; }
+
+        /* Nền mờ phía sau */
+        .sheet-overlay {
+            position: absolute; inset: 0; background: rgba(0, 0, 0, 0.7);
+            opacity: 0; transition: opacity 0.4s ease;
+        }
+        .sheet-container.active .sheet-overlay { opacity: 1; }
+
+        /* Nội dung bảng giá trượt lên */
+        .sheet-content {
+            position: relative; background: var(--card);
+            width: 100%; border-radius: 30px 30px 0 0;
+            padding: 12px 20px 40px;
+            border-top: 2px solid var(--accent);
+            transform: translateY(100%);
+            transition: transform 0.5s var(--ios-curve);
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+        }
+        .sheet-container.active .sheet-content { transform: translateY(0); }
+
+        /* Thanh Handle trên đầu bảng */
+        .sheet-handle {
+            width: 45px; height: 5px; background: rgba(255,255,255,0.2);
+            border-radius: 10px; margin: 0 auto 20px;
+        }
+
+        .btn-order-now {
+            width: 100%; padding: 15px; background: var(--accent);
+            color: #fff; border: none; border-radius: 12px;
+            font-size: 16px; font-weight: 800; margin-top: 20px;
+            box-shadow: 0 4px 15px var(--accent-glow); cursor: pointer;
+        }
+
+        footer { text-align: center; padding: 25px; font-size: 11px; color: var(--sub); border-top: 1px solid rgba(255,102,0,0.1); }
+        footer b { color: var(--accent); }
+    </style>
+</head>
+<body>
+
+<header><h1>🐻 BEAR ROBLOX | AFSE</h1></header>
+
+<div class="hero">
+    <span class="brand">CÀY THUÊ BLOX FRUIT</span>
+    <p>UY TÍN • CHẤT LƯỢNG • AN TOÀN</p>
+</div>
+
+<div class="banner-box">
+    <div class="outer-spin"><img src="./sk.jpg" class="main-img"></div>
+</div>
+
+<div class="container">
+    <div class="drop-box">
+    <div class="drop-head" onclick="toggleDrop(this)">
+        <span>⚔️ DỊCH VỤ KIẾM (FULL SWORDS)</span><span>▼</span>
+    </div>
+    <div class="drop-body">
+        
+        <div style="padding: 10px 18px; font-size: 11px; color: #ff3333; font-weight: bold; background: rgba(255,51,51,0.1);">DANH SÁCH KIẾM MYTHICAL</div>
+        
+        <div class="item" onclick="openSheet('Cursed Dual Katana', '• Yêu Cầu:\n- Lv. 2200+\n- 350 Mastery Tushita & Yama\n- Hoàn thành Tushita & Yama Scroll Trials.')">
+            <div><h4>Cursed Dual Katana (CDK)</h4><p>Mythical Sword</p></div><span class="price">50k</span>
+        </div>
+        <div class="item" onclick="openSheet('True Triple Katana (TTK)', '• Yêu Cầu:\n- Có đủ Shisui, Saddi, Wando\n- Mỗi thanh đạt 300 Mastery\n- Giá mua: 2.000.000$ Beli.')">
+            <div><h4>True Triple Katana</h4><p>Mythical Sword</p></div><span class="price">40k</span>
+        </div>
+        <div class="item" onclick="openSheet('Hallow Scythe', '• Cách lấy:\n- Đánh bại Boss Soul Reaper (Haunted Castle).\n- Yêu cầu Hallow Essence.')">
+            <div><h4>Hallow Scythe</h4><p>Mythical Sword</p></div><span class="price">30k</span>
+        </div>
+        <div class="item" onclick="openSheet('Dark Blade (Yoru)', '• Cách lấy:\n- Mua Gamepass (1200 Robux) hoặc Trade.\n- Có thể nâng cấp lên V2 và V3.')">
+            <div><h4>Dark Blade (V3)</h4><p>Mythical Sword</p></div><span class="price">50k</span>
+        </div>
+
+        <div style="padding: 10px 18px; font-size: 11px; color: var(--accent); font-weight: bold; background: rgba(255,102,0,0.1);">DANH SÁCH KIẾM LEGENDARY</div>
+        
+        <div class="item" onclick="openSheet('Shark Anchor', '• Cách lấy:\n- Chế tạo Monster Magnet.\n- Đánh bại Terrorshark (Anchor).')">
+            <div><h4>Shark Anchor</h4><p>Legendary Sword</p></div><span class="price">35k</span>
+        </div>
+        <div class="item" onclick="openSheet('Fox Lamp', '• Cách lấy:\n- Tham gia sự kiện Đảo Kitsune.\n- Đổi linh hồn lấy đèn tại Kitsune Shrine.')">
+            <div><h4>Fox Lamp</h4><p>Legendary Sword</p></div><span class="price">40k</span>
+        </div>
+        <div class="item" onclick="openSheet('Dragonheart', '• Cách lấy (Update 24):\n- Thu thập nguyên liệu từ Dragon Hunter.')">
+            <div><h4>Dragonheart</h4><p>Legendary Sword</p></div><span class="price">45k</span>
+        </div>
+        <div class="item" onclick="openSheet('Tushita / Yama', '• Cách lấy:\n- Tushita: Giải đố Torch quest.\n- Yama: Diệt 30 Elite Pirates.')">
+            <div><h4>Tushita / Yama</h4><p>Legendary Sword</p></div><span class="price">20k/món</span>
+        </div>
+        <div class="item" onclick="openSheet('Spikey Trident', '• Cách lấy:\n- Đánh bại Boss Cake Prince hoặc Dough King.')">
+            <div><h4>Spikey Trident</h4><p>Legendary Sword</p></div><span class="price">25k</span>
+        </div>
+        <div class="item" onclick="openSheet('Canvander / Buddy Sword', '• Cách lấy:\n- Đánh bại Boss Beautiful Pirate hoặc Cake Queen.')">
+            <div><h4>Canvander / Buddy</h4><p>Legendary Sword</p></div><span class="price">15k/món</span>
+        </div>
+        <div class="item" onclick="openSheet('Midnight Blade', '• Cách lấy:\n- Đổi 100 Ectoplasm tại Cursed Ship.')">
+            <div><h4>Midnight Blade</h4><p>Legendary Sword</p></div><span class="price">10k</span>
+        </div>
+        <div class="item" onclick="openSheet('Rengoku', '• Cách lấy:\n- Tìm Hidden Key tại Ice Castle (Sea 2).')">
+            <div><h4>Rengoku</h4><p>Legendary Sword</p></div><span class="price">15k</span>
+        </div>
+        <div class="item" onclick="openSheet('Saber', '• Cách lấy:\n- Giải đố tại Jungle và diệt Saber Expert.')">
+            <div><h4>Saber (V2)</h4><p>Legendary Sword</p></div><span class="price">10k</span>
+        </div>
+        <div class="item" onclick="openSheet('Koko', '• Cách lấy:\n- Đánh bại Boss Order (Raids Law).')">
+            <div><h4>Koko</h4><p>Legendary Sword</p></div><span class="price">15k</span>
+        </div>
+
+        <div style="padding: 10px 18px; font-size: 11px; color: #b5c0ff; font-weight: bold; background: rgba(255,255,255,0.05);">DỊCH VỤ KIẾM RARE & KHÁC</div>
+        
+        <div class="item" onclick="openSheet('Dragon Trident', '• Cách lấy:\n- Đánh bại Tide Keeper tại Sea 2.')">
+            <div><h4>Dragon Trident</h4><p>Rare Sword</p></div><span class="price">10k</span>
+        </div>
+        <div class="item" onclick="openSheet('Soul Cane', '• Cách lấy:\n- Mua từ Living Skeleton tại Magma Village ($750k).')">
+            <div><h4>Soul Cane</h4><p>Rare Sword</p></div><span class="price">10k</span>
+        </div>
+        <div class="item" onclick="openSheet('Fishing Trophy', '• Cách lấy:\n- Đạt Top 1000 trong Fishing Tournament.')">
+            <div><h4>Fishing Trophy</h4><p>Event Sword</p></div><span class="price">Liên hệ</span>
+        </div>
+    </div>
+</div>
+
+<div class="drop-box">
+    <div class="drop-head" onclick="toggleDrop(this)">
+        <span>🔫 DỊCH VỤ SÚNG (FULL GUNS)</span><span>▼</span>
+    </div>
+    <div class="drop-body">
+        
+        <div style="padding: 10px 18px; font-size: 11px; color: #ff3333; font-weight: bold; background: rgba(255,51,51,0.1);">SÚNG MYTHICAL (SIÊU HIẾM)</div>
+        
+        <div class="item" onclick="openSheet('Soul Guitar', '• Yêu Cầu:\n- Level 2300+\n- Hoàn thành bài kiểm tra tại Haunted Castle vào đêm trăng tròn (Full Moon).\n- Nguyên liệu: 500 Bones, 250 Ectoplasm, 1 Dark Fragment.')">
+            <div><h4>Soul Guitar</h4><p>Mythical Gun</p></div><span class="price">50k</span>
+        </div>
+
+        <div style="padding: 10px 18px; font-size: 11px; color: var(--accent); font-weight: bold; background: rgba(255,102,0,0.1);">SÚNG LEGENDARY</div>
+        
+        <div class="item" onclick="openSheet('Serpent Bow', '• Cách lấy:\n- Đánh bại Boss Beautiful Pirate (Island Empress) tại Sea 3.\n- Tỉ lệ rơi khoảng 2-5%.')">
+            <div><h4>Serpent Bow</h4><p>Legendary Gun</p></div><span class="price">25k</span>
+        </div>
+        <div class="item" onclick="openSheet('Kabucha', '• Cách lấy:\n- Đổi 1.500 Fragments với NPC Haredane tại Đảo Huyền Bí (Sea 2).')">
+            <div><h4>Kabucha</h4><p>Legendary Gun</p></div><span class="price">15k</span>
+        </div>
+        <div class="item" onclick="openSheet('Acidum Rifle', '• Cách lấy:\n- Nhận từ rương sau khi thắng Factory Raid (Sea 2).\n- Tỉ lệ rơi: 10-20%.')">
+            <div><h4>Acidum Rifle</h4><p>Legendary Gun</p></div><span class="price">20k</span>
+        </div>
+        <div class="item" onclick="openSheet('Bizarre Rifle', '• Cách lấy:\n- Mua từ NPC El Perro tại Cursed Ship (Sea 2) với giá 25 Ectoplasm.')">
+            <div><h4>Bizarre Rifle</h4><p>Legendary Gun</p></div><span class="price">10k</span>
+        </div>
+
+        <div style="padding: 10px 18px; font-size: 11px; color: #b5c0ff; font-weight: bold; background: rgba(255,255,255,0.05);">SÚNG RARE & PHỔ BIẾN</div>
+        
+        <div class="item" onclick="openSheet('Cannon', '• Cách lấy:\n- Mua từ Sword Dealer of the Sea tại Sea 1 với giá $100,000 Beli.')">
+            <div><h4>Cannon</h4><p>Rare Gun</p></div><span class="price">5k</span>
+        </div>
+        <div class="item" onclick="openSheet('Refined Musket', '• Cách lấy:\n- Mua tại Magma Village (Sea 1) với giá $8,000 Beli.')">
+            <div><h4>Refined Musket</h4><p>Uncommon Gun</p></div><span class="price">5k</span>
+        </div>
+        <div class="item" onclick="openSheet('Slingshot', '• Cách lấy:\n- Mua tại đảo Jungle (Sea 1) với giá siêu rẻ $5,000 Beli.')">
+            <div><h4>Slingshot</h4><p>Common Gun</p></div><span class="price">Free</span>
+        </div>
+    </div>
+</div>
+
+
+    <div class="drop-box">
+    <div class="drop-head" onclick="toggleDrop(this)">
+        <span>🧬 DỊCH VỤ RACES V3</span><span>▼</span>
+    </div>
+    <div class="drop-body">
+        
+        <div style="padding: 10px 18px; font-size: 11px; color: #ff3333; font-weight: bold; background: rgba(255,51,51,0.1);">TỘC HIẾM (CẦN LÀM QUEST)</div>
+        
+        <div class="item" onclick="openSheet('Cyborg Race', '• Cách lấy V1:\n- Hoàn thành Quest Core Brain từ Boss Law.\n- Cần chip và tốn 2.500 Fragments.\n• Ưu điểm: Khả năng hồi năng lượng và sát thương diện rộng.')">
+            <div><h4>Cyborg Race</h4><p>Tộc Người Máy</p></div><span class="price">50k</span>
+        </div>
+        <div class="item" onclick="openSheet('Ghoul Race', '• Cách lấy V1:\n- Level 1000+.\n- Cần 100 Ectoplasm và Hellfire Torch từ boss Cursed Ship.\n• Ưu điểm: Hút máu (Lifesteal) và chạy nhanh ban đêm.')">
+            <div><h4>Ghoul Race</h4><p>Tộc Ma Cà Rồng</p></div><span class="price">25k</span>
+        </div>
+
+        <div style="padding: 10px 18px; font-size: 11px; color: var(--accent); font-weight: bold; background: rgba(255,102,0,0.1);">TỘC CƠ BẢN (HUMAN, SHARK, ANGEL, MINK)</div>
+        
+        <div class="item" onclick="openSheet('Shark Race (Người Cá)', '• Ưu điểm: Giảm sát thương và khả năng bơi lội không mất máu dưới nước (V2/V3). \n• Rất mạnh khi đi Sea Events (SB, Terrorshark).')">
+            <div><h4>Shark Race</h4><p>Tộc Người Cá</p></div><span class="price">15k</span>
+        </div>
+        <div class="item" onclick="openSheet('Mink Race (Thỏ)', '• Ưu điểm: Tốc độ chạy cực nhanh và khoảng cách lướt (Dash) xa.\n• Phù hợp cho PvP và chạy di chuyển.')">
+            <div><h4>Rabbit Race (Mink)</h4><p>Tộc Thỏ/Tốc độ</p></div><span class="price">15k</span>
+        </div>
+        <div class="item" onclick="openSheet('Angel Race (Thiên Thần)', '• Ưu điểm: Khả năng bay nhảy cao và hồi máu (Healing) cực nhanh.\n• Rất khó chịu khi PvP trên không.')">
+            <div><h4>Angel Race</h4><p>Tộc Thiên Thần</p></div><span class="price">15k</span>
+        </div>
+        <div class="item" onclick="openSheet('Human Race (Người)', '• Ưu điểm: Tăng sát thương theo lượng máu đã mất.\n• Sức mạnh bùng nổ cực lớn khi thức tỉnh V4.')">
+            <div><h4>Human Race</h4><p>Tộc Người</p></div><span class="price">15k</span>
+        </div>
+
+        <div style="padding: 10px 18px; font-size: 12px; color: #00ff00; font-weight: bold; background: rgba(0,255,0,0.1);">THUÊ LẤY TỘC 100% BAO BELI FRAGMENTS ( KÈM UP V3 )</div>
+        
+        
+        </div>
+    </div>
+<div class="drop-box">
+    <div class="drop-head" onclick="toggleDrop(this)">
+        <span>🔥 DỊCH VỤ THỨC TỈNH V4 (RACE AWAKENING)</span><span>▼</span>
+    </div>
+    <div class="drop-body">
+        
+        <div style="padding: 10px 18px; font-size: 11px; color: #ff6600; font-weight: bold; background: rgba(255,102,0,0.1);">GIAI ĐOẠN 1: CHUẨN BỊ (PREPARATION)</div>
+        
+        <div class="item" onclick="openSheet('Dough King', '• Nhận Mirror Fractal.\n• Yêu cầu: Có sẵn Sweet Chalice hoặc hỗ trợ triệu hồi.\n• Phần thưởng: Mở khóa khả năng nhìn vào trăng tròn tại Mirage.')">
+            <div><h4>Dough King</h4><p>Lấy Mirror Fractal</p></div><span class="price">20k</span>
+        </div>
+        <div class="item" onclick="openSheet('Tìm Đảo Mirage & Blue Gear', '• Dịch vụ bao gồm:\n- Tìm đảo Mirage trong biển đêm.\n- Tìm Blue Gear (Bánh răng xanh) ẩn giấu trên đảo.\n• Lưu ý: Cần có Mirror Fractal trước.')">
+            <div><h4>Tìm Gear</h4><p>Bánh răng Mirage</p></div><span class="price">15k</span>
+        </div>
+
+        <div style="padding: 10px 18px; font-size: 11px; color: #00ff00; font-weight: bold; background: rgba(0,255,0,0.1);">GIAI ĐOẠN 2: THỰC THI (TRIALS & GEARS)</div>
+        
+        <div class="item" onclick="openSheet('Mở Khóa V4 (Trial Đầu)', '• Thực hiện bài kiểm tra Trial đầu tiên tại Great Tree.\n• Mở khóa hình dạng thức tỉnh V4 cơ bản.\n• Yêu cầu: Đã gạt cần Lever.')">
+            <div><h4>Mở Khóa V4 (Gear 1)</h4><p>Trial đầu tiên</p></div><span class="price">20k</span>
+        </div>
+        <div class="item" onclick="openSheet('Cày Gear Tiếp Theo', '• Thực hiện các bài Trial và Training để nâng cấp Gear.\n• Gear 2: 1k Frag\n• Gear 3: 1k5 Frag\n• Gear 4: 2k Frag\n• Gear 5: 2k5 Frag.')">
+            <div><h4>Cày Gear Lẻ</h4><p>Tính theo từng vòng</p></div><span class="price">15k/vòng</span>
+        </div>
+
+        <div style="padding: 10px 18px; font-size: 11px; color: #ff3333; font-weight: bold; background: rgba(255,51,51,0.1);">GÓI VIP TRỌN GÓI</div>
+        
+        <div class="item" onclick="openSheet('Full Gear V4 (Max Skill)', '• Dịch vụ trọn gói từ Gear 1 đến Gear Max.\n• Bao gồm tất cả các lần Training cần thiết.\n• Thời gian hoàn thành: 1-3 ngày tùy độ khó của Tộc.')">
+            <div><h4>Full Gear V4 Max</h4><p>Thức tỉnh hoàn hảo</p></div><span class="price">150k</span>
+        </div>
+        <div class="item" onclick="openSheet('Train Skill V4', '• Hỗ trợ đứng farm để khách hàng đủ thời gian tiến hóa Gear.\n• Tiết kiệm thời gian tự treo máy cho khách.')">
+            <div><h4>Treo Máy Train Skill</h4><p>Dành cho khách đã xong Trial</p></div><span class="price">10k/lần</span>
+        </div>
+
+    </div>
+</div>
+
+<div class="sheet-container" id="bottomSheet">
+    <div class="sheet-overlay" onclick="closeSheet()"></div>
+    <div class="sheet-content">
+        <div class="sheet-handle"></div>
+        <h2 id="sheetTitle" style="color: var(--accent); margin: 0 0 10px;">Tên Dịch Vụ</h2>
+        <p id="sheetDesc" style="color: var(--sub); line-height: 1.6; font-size: 14px;">Thông tin chi tiết...</p>
+        
+        <button class="btn-order-now">ĐẶT HÀNG NGAY</button>
+        <div onclick="closeSheet()" style="text-align: center; margin-top: 15px; color: #888; font-size: 13px; cursor: pointer;">Đóng lại</div>
+    </div>
+</div>
+
+<footer><b>LIÊN HỆ: ZALO / FACEBOOK / DISCORD</b></footer>
+
+<script>
+    function toggleDrop(header) {
+        header.parentElement.classList.toggle('active');
+    }
+
+    // Hàm mở bảng trượt lên
+    function openSheet(title, desc) {
+        document.getElementById('sheetTitle').innerText = title;
+        document.getElementById('sheetDesc').innerText = desc;
+        document.getElementById('bottomSheet').classList.add('active');
+        // Khóa cuộn trang khi mở sheet
+        document.body.style.overflow = 'hidden';
+    }
+
+    // Hàm đóng bảng
+    function closeSheet() {
+        document.getElementById('bottomSheet').classList.remove('active');
+        // Mở lại cuộn trang
+        document.body.style.overflow = 'auto';
+    }
+</script>
+
+</body>
+</html>
